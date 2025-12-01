@@ -48,4 +48,30 @@ This project implements an end-to-end data pipeline:
 - Git + GitHub
 
 ---
+ 
+## ⚡ Quick start (Windows PowerShell)
+
+Run locally in a virtual environment and run the smoke test:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+pytest -q
+```
+
+Run the pipeline manually:
+
+```powershell
+python -m src.pipeline
+```
+
+Run with Docker Compose:
+
+```powershell
+docker compose up --build
+```
+
+These commands assume you run them from the project root.
+
 

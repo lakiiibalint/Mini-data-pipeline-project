@@ -1,0 +1,14 @@
+pandas
+numpy
+requests
+beautifulsoup4
+matplotlib
+seaborn
+scikit-learn
+pyod
+jupyter
+pytest
+
+psycopg[binary]      # Postgres driver (új psycopg)
+sqlalchemy           # kényelmesebb pandas + engine használathoz
+python-dotenv        # .env betöltéshez, ha akarod

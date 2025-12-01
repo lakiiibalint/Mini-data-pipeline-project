@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: mini_data_pipeline_db
+    environment:
+      POSTGRES_DB: ${DB_NAME:-books}
+      POSTGRES_USER: ${DB_USER:-appuser}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-app_password}
+    ports:
+      - "5433:5432"          # local debugging
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  app:
+    
+    build: .
+    container_name: mini_data_pipeline_app
+    env_file: .env
+    depends_on:
+      - db
+    volumes:
+      - .:/app              # development mode
+    working_dir: /app
+    command: ["python", "-m", "src.pipeline"]
+    environment:
+      - PYTHONPATH=/app
+    # ha notebookot akarsz:
+    # command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
+    # ports:
+    #   - "8888:8888"
+
+volumes:
+  pgdata:
