@@ -10,7 +10,7 @@ The goal is to to simulate a small real-world data workflow using a simple websi
 This project implements an end-to-end data pipeline:
 
 1. **Web Scraping** – extract structured book data from `https://books.toscrape.com`
-2. **Database Storage** – save the data into a local SQLite database
+2. **Database Storage** – save the data into a database (SQlite for testing, PostgreSQL for Docker) 
 3. **Data Cleaning & Preprocessing** – handle missing values, duplicates, data types
 4. **Exploratory Data Analysis (EDA)** – basic statistics and visualizations
 5. **Anomaly Detection** – identify unusual prices or ratings
