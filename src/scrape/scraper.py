@@ -54,9 +54,13 @@ def fetch (session : requests.Session, url : str, timeout : float = 10.0) -> str
 def parse_book_card(card: Tag) -> Dict[str, Optional[str]]:
     title_el = card.select_one("h3 a")
     title = title_el.get("title", "").strip() if title_el else ""
+    href = title_el.get("href") if title_el else None
+    product_page_url = urljoin(BASE, href) if href else None
 
     price_el = card.select_one(".price_color")
-    price = price_el.text[2:].strip() if price_el else ""
+    price_text = price_el.get_text(strip=True) if price_el else ""
+    # strip leading currency symbol like "£"
+    price = price_text.lstrip("£") if price_text else ""
 
     avail_el = card.select_one("p.availability")
     availability = avail_el.text.strip() if avail_el else None
@@ -73,7 +77,8 @@ def parse_book_card(card: Tag) -> Dict[str, Optional[str]]:
         "title": title,
         "price": price,
         "availability": availability,
-        "rating": rating
+        "rating": rating,
+        "product_page_url": product_page_url,
     }
 
 
