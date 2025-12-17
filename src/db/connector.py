@@ -1,49 +1,77 @@
-"""
-Database connector utilities for PostgreSQL.
-"""
+"""Database connector using SQLAlchemy ORM
+Used every run ro write/read data.
+DB operations (insert/query"""
 
-from typing import Iterable, Dict
+import logging
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
+from typing import List, Dict, Any
+from src.config import DATABASE_URL
+from src.db.models import RawBook
 
-import psycopg #Python driver to talk to PostgreSQL.
-from psycopg.rows import dict_row # makes query results come back as dicts instead of tuples.
 
-from src.config import DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger(__name__)  
 
-#Any code that wants to talk to the DB calls get_connection().
-def get_connection() -> psycopg.Connection:
+#engine: connection configuration + driver.
+#session : a “conversation” with the DB (transaction scope).
+#Create a session when you want to write/read, then close it.
+
+engine = create_engine(DATABASE_URL, echo=False)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+
+
+@contextmanager
+def get_session():
+    """Context manager for DB sessions with auto commit/rollback."""
+    session = SessionLocal()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Session error: {e}")
+        raise
+    finally:
+        session.close()
+#{'title': 'A Light in the Attic', 'price': '51.77', 'availability': 'In stock', 'rating': 3}
+
+def insert_raw_books(rows: List[Dict[str, Any]]) -> int:
     """
-    Return a Postgres connection to the project database.
+    Insert a list/iterable of scraped raw book dicts into raw_books table.
+    Returns number of inserted rows.
     """
-    conn = psycopg.connect(
-        host=DB_HOST,
-        port=DB_PORT,
-        dbname=DB_NAME,
-        user=DB_USER,
-        password=DB_PASSWORD,
-        row_factory=dict_row,
-    )
-    return conn
-
-
-def insert_books(records: Iterable[Dict]) -> None:
-    """
-    Insert a collection of raw book records into the 'raw_books' table.
-    """
-    records = list(records)
-    if not records:
-        return
-
-    conn = get_connection()
-    with conn:
-        conn.executemany(
-            """
-            INSERT INTO raw_books
-                (title, price_raw, rating_raw, availability_raw,
-                 category_raw, product_page_url, timestamp)
-            VALUES
-                (%(title)s, %(price_raw)s, %(rating_raw)s, %(availability_raw)s,
-                 %(category_raw)s, %(product_page_url)s, %(timestamp)s)
-            """,
-            records,
+    if not rows:
+        return 0
+    
+    objects = []
+    for r in rows:
+        objects.append(
+            RawBook(
+                title=r.get("title"),
+                price_raw=r.get("price"),  # Scraper returns 'price', not 'price_raw'
+                rating_raw=str(r.get("rating")) if r.get("rating") is not None else None,
+                availability_raw=r.get("availability"),
+                product_page_url=r.get("product_page_url"),
+            )
         )
-    conn.close()
+    
+    with get_session() as session:
+        session.add_all(objects)
+        
+    return len(objects)
+
+
+if __name__ == "__main__":
+    # Demo test
+    demo = [{
+        "title": "Test Book",
+        "price": "9.99",
+        "rating": 3,
+        "availability": "In stock",
+        "product_page_url": "https://example.com/test-book",
+    }]
+    
+    count = insert_raw_books(demo)
+    print(f"Inserted {count} demo records")

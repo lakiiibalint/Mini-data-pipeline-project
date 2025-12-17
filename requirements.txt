@@ -8,13 +8,7 @@ scikit-learn
 pyod
 jupyter
 pytest
-requests
-bs4
-time
-random
-typing
-urllib.parse
 
-psycopg[binary]      # Postgres driver (új psycopg)
-sqlalchemy           # kényelmesebb pandas + engine használathoz
-python-dotenv        # .env betöltéshez, ha akarod
+psycopg[binary]
+sqlalchemy
+python-dotenv

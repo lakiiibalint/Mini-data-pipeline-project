@@ -23,14 +23,12 @@ RATING_MAP = {
 #a függvény egy Session objektumot ad vissza, 
 
 def make_session() -> requests.Session:
-    #nyitok egy böngészőt, és azon belül több oldalt töltök be
     session = requests.Session()
     #Alapértelmezett HTTP header beállítása, a szerver látja, ki küldi a kérést
     session.headers.update({"User-Agent" : "MiniDataPipelineBot/1.0 (lakatosbalint1029@gmail.com)"})
-    #minden .get() automatikusan tartalmazza a User-Agent-et
     return session 
 
-#biztonságosan letölt egy URL-t
+
 def fetch (session : requests.Session, url : str, timeout : float = 10.0) -> str:
     retries = 3
     for attempt in range(1, retries + 1):
@@ -101,16 +99,6 @@ if __name__ == "__main__":
     try:
         books = list(scraper(max_pages=1))
         logging.info("Scraped %d books", len(books))
-        for b in books[:5]:
-            logging.info(b)
+        print(books[:5])
     except Exception as e:
         logging.error("Scraper failed: %s", e)
-
-
-
-
-
-
-
-
-
