@@ -43,7 +43,8 @@ This project implements an end-to-end data pipeline:
 - `seaborn`
 
 **Environment / tooling**
-- PostgreSQL (local file, `data/books.db`)
+- PostgreSQL (Docker)
+- SQlite (for testing, local)
 - Jupyter Notebook / JupyterLab
 - Git + GitHub
 
