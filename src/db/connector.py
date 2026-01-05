@@ -66,6 +66,7 @@ def insert_raw_books(rows: List[Dict[str, Any]]) -> int:
                 price_raw=r.get("price"),  # Scraper returns 'price', not 'price_raw'
                 rating_raw=str(r.get("rating")) if r.get("rating") is not None else None,
                 availability_raw=r.get("availability"),
+                category=r.get("category"),
                 product_page_url=r.get("product_page_url"),
             )
         )
@@ -100,6 +101,7 @@ def upsert_books(cleaned_rows: List[Dict[str, Any]]) -> int:
                 exists.price = row.get("price")
                 exists.rating = row.get("rating")
                 exists.availability = row.get("availability")
+                exists.category = row.get("category")
                 logger.info(f"Updated book: {row['title']}")   
             else:
                 # INSERT path: create new record
@@ -108,7 +110,9 @@ def upsert_books(cleaned_rows: List[Dict[str, Any]]) -> int:
                     price=row.get("price"),
                     rating=row.get("rating"),
                     availability=row.get("availability"),
+                    category=row.get("category"),
                     product_page_url=row.get("product_page_url"),
+
                 )
                 session.add(new_book)
                 logger.info(f"Inserted new book: {row['title']}")
